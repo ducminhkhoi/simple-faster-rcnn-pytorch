@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from utils.config import opt
 from data.dataset import Dataset, TestDataset, inverse_normalize
-from model import FasterRCNNVGG16
+from model import FasterRCNNVGG16, FasterRCNNRESNET101
 from torch.autograd import Variable
 from torch.utils import data as data_
 from trainer import FasterRCNNTrainer
@@ -62,7 +62,11 @@ def train(**kwargs):
                                        shuffle=False, \
                                        pin_memory=True
                                        )
-    faster_rcnn = FasterRCNNVGG16()
+    if opt.model == 'VGG16':
+        faster_rcnn = FasterRCNNVGG16()
+    elif opt.model == 'RESNET101':
+        faster_rcnn = FasterRCNNRESNET101()
+
     print('model construct completed')
     trainer = FasterRCNNTrainer(faster_rcnn).cuda()
     if opt.load_path:

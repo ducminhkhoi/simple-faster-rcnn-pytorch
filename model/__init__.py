@@ -1,1 +1,2 @@
 from .faster_rcnn_vgg16 import FasterRCNNVGG16
+from .faster_rcnn_resnet101 import FasterRCNNRESNET101
