@@ -7,6 +7,11 @@ from model.roi_module import RoIPooling2D
 from utils import array_tool as at
 from utils.config import opt
 
+def set_bn_fix(m):
+    classname = m.__class__.__name__
+    if classname.find('BatchNorm') != -1:
+        for p in m.parameters(): p.requires_grad = False
+
 def decom_resnet101():
 
     if opt.caffe_pretrain:
@@ -16,7 +21,12 @@ def decom_resnet101():
     else:
         model = resnet101(not opt.load_path)
 
-    # resnet.layer1 to resnet.layer3 for extractor
+    # freeze top conv and bn layers
+    for p in model.conv1.parameters(): p.requires_grad = False
+    for p in model.layer1.parameters(): p.requires_grad = False
+    model.apply(set_bn_fix)
+
+    # resnet.layer0 to resnet.layer3 for extractor
     features_extractor = nn.Sequential(model.conv1, model.bn1,model.relu,
       model.maxpool,model.layer1,model.layer2,model.layer3)
 
@@ -24,7 +34,6 @@ def decom_resnet101():
     features_classifier = nn.Sequential(model.layer4)
 
     return features_extractor, features_classifier
-
 
 class FasterRCNNRESNET101(FasterRCNN):
     """Faster R-CNN based on RESNET101.

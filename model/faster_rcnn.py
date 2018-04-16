@@ -270,7 +270,10 @@ class FasterRCNN(nn.Module):
         for key, value in dict(self.named_parameters()).items():
             if value.requires_grad:
                 if 'bias' in key:
-                    params += [{'params': [value], 'lr': lr * 2, 'weight_decay': 0}]
+                    if 'RESNET' in opt.model:
+                        params += [{'params': [value], 'lr': lr, 'weight_decay': 0}]
+                    else:
+                        params += [{'params': [value], 'lr': lr * 2, 'weight_decay': 0}]
                 else:
                     params += [{'params': [value], 'lr': lr, 'weight_decay': opt.weight_decay}]
         if opt.use_adam:
